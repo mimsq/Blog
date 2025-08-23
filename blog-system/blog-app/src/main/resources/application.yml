@@ -24,5 +24,45 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
+# Knife4j配置
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+    enable-swagger-models: true
+    enable-document-manage: true
+    swagger-model-name: 实体类列表
+  basic:
+    enable: false
+  openapi:
+    title: 星喵博客系统 API
+    description: 现代化、高性能、易扩展的博客系统后端API接口文档
+    email: admin@xingmiao.com
+    concat: 星喵博客系统
+    url: https://blog.xingmiao.com
+    version: 1.0.0
+    license: MIT License
+    license-url: https://opensource.org/licenses/MIT
+    terms-of-service-url: https://blog.xingmiao.com/terms
+    group:
+      default:
+        group-name: 默认分组
+        api-rule: package
+        api-rule-resources:
+          - com.xingmiao.blog.controller
+
+# 博客作者配置
+blog:
+  author:
+    username: admin
+    nickname: 星喵博客
+    bio: 欢迎来到我的博客！
+    avatar-url: https://via.placeholder.com/150x150?text=星喵
+    email: admin@xingmiao.com
+    website: https://blog.xingmiao.com
+    # export BLOG_AUTHOR_PASSWORD=your_real_password
+    password: ${BLOG_AUTHOR_PASSWORD:dev_password}
+    password-enabled: true
+
 
 

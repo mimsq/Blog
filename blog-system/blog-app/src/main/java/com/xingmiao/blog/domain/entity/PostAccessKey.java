@@ -56,9 +56,13 @@ public class PostAccessKey {
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (createdAt == null) createdAt = now;
+        if (createdAt == null) {
+            createdAt = now;
+        }
         updatedAt = now;
-        if (isActive == null) isActive = true;
+        if (isActive == null) {
+            isActive = true;
+        }
     }
 
     @PreUpdate
