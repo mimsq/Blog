@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:blogdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+    url: jdbc:mysql://192.168.125.128:3306/blog_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root  # 请根据实际情况修改用户名
+    password: root  # 请根据实际情况修改密码
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,10 +11,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 server:
   port: 8080
