@@ -60,6 +60,13 @@ blog:
     # export BLOG_AUTHOR_PASSWORD=your_real_password
     password: ${BLOG_AUTHOR_PASSWORD:dev_password}
     password-enabled: true
+  security:
+    jwt:
+      # 生产环境请使用强密钥，可以通过环境变量设置
+      # export BLOG_JWT_SECRET=your_strong_secret_key_here
+      secret: ${BLOG_JWT_SECRET:defaultSecretKeyForDevelopmentOnlyChangeInProduction}
+      # 默认令牌过期时间（秒）
+      default-ttl: 86400
 
 
 

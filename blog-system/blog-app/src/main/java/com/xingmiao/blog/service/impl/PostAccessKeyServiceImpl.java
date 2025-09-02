@@ -85,8 +85,12 @@ public class PostAccessKeyServiceImpl implements PostAccessKeyService {
         List<PostAccessKey> keys = accessKeyRepository
                 .findByPost_IdAndIsActiveTrue(postId);
         for (PostAccessKey key : keys) {
-            if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) continue;
-            if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) continue;
+            if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) {
+                continue;
+            }
+            if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) {
+                continue;
+            }
             String calc = sha256WithSalt(rawPassword, key.getPasscodeSalt());
             if (calc.equals(key.getPasscodeHash())) {
                 return true;
@@ -102,8 +106,12 @@ public class PostAccessKeyServiceImpl implements PostAccessKeyService {
         List<PostAccessKey> keys = accessKeyRepository
                 .findByPost_IdAndIsActiveTrue(postId);
         for (PostAccessKey key : keys) {
-            if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) continue;
-            if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) continue;
+            if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) {
+                continue;
+            }
+            if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) {
+                continue;
+            }
             String calc = sha256WithSalt(rawPassword, key.getPasscodeSalt());
             if (calc.equals(key.getPasscodeHash())) {
                 return key.getId();
