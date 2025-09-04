@@ -25,8 +25,8 @@ public class LikeController {
     @PostMapping("/{targetType}/{targetId}")
     @Operation(summary = "点赞")
     public ResponseEntity<Void> like(
-            @Parameter(description = "目标类型", required = true) @PathVariable LikeTargetType targetType,
-            @Parameter(description = "目标ID", required = true) @PathVariable Long targetId,
+            @Parameter(description = "目标类型", required = true) @PathVariable("targetType") LikeTargetType targetType,
+            @Parameter(description = "目标ID", required = true) @PathVariable("targetId") Long targetId,
             HttpServletRequest request) {
         String ip = getClientIp(request);
         String ua = request.getHeader("User-Agent");
@@ -37,8 +37,8 @@ public class LikeController {
     @DeleteMapping("/{targetType}/{targetId}")
     @Operation(summary = "取消点赞")
     public ResponseEntity<Void> unlike(
-            @Parameter(description = "目标类型", required = true) @PathVariable LikeTargetType targetType,
-            @Parameter(description = "目标ID", required = true) @PathVariable Long targetId,
+            @Parameter(description = "目标类型", required = true) @PathVariable("targetType") LikeTargetType targetType,
+            @Parameter(description = "目标ID", required = true) @PathVariable("targetId") Long targetId,
             HttpServletRequest request) {
         String ip = getClientIp(request);
         likeService.unlike(targetType, targetId, ip);
@@ -51,8 +51,8 @@ public class LikeController {
             @ApiResponse(responseCode = "200", description = "查询成功", content = @Content(schema = @Schema(implementation = Long.class)))
     })
     public ResponseEntity<Long> count(
-            @Parameter(description = "目标类型", required = true) @PathVariable LikeTargetType targetType,
-            @Parameter(description = "目标ID", required = true) @PathVariable Long targetId) {
+            @Parameter(description = "目标类型", required = true) @PathVariable("targetType") LikeTargetType targetType,
+            @Parameter(description = "目标ID", required = true) @PathVariable("targetId") Long targetId) {
         return ResponseEntity.ok(likeService.count(targetType, targetId));
     }
 
@@ -62,8 +62,8 @@ public class LikeController {
             @ApiResponse(responseCode = "200", description = "查询成功", content = @Content(schema = @Schema(implementation = Boolean.class)))
     })
     public ResponseEntity<Boolean> isLiked(
-            @Parameter(description = "目标类型", required = true) @PathVariable LikeTargetType targetType,
-            @Parameter(description = "目标ID", required = true) @PathVariable Long targetId,
+            @Parameter(description = "目标类型", required = true) @PathVariable("targetType") LikeTargetType targetType,
+            @Parameter(description = "目标ID", required = true) @PathVariable("targetId") Long targetId,
             HttpServletRequest request) {
         String ip = getClientIp(request);
         return ResponseEntity.ok(likeService.isLiked(targetType, targetId, ip));
