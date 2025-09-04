@@ -85,7 +85,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<CategoryDto> update(
-            @Parameter(description = "分类ID", required = true) @PathVariable Long id,
+            @Parameter(description = "分类ID", required = true) @PathVariable("id") Long id,
             @Valid @RequestBody CategoryUpdateRequest request) {
         CategoryDto updated = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(updated);
@@ -106,7 +106,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<CategoryDto> getById(
-            @Parameter(description = "分类ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "分类ID", required = true) @PathVariable("id") Long id) {
         return categoryService.getCategoryById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -127,7 +127,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<CategoryDto> getByName(
-            @Parameter(description = "分类名称", required = true) @PathVariable String name) {
+            @Parameter(description = "分类名称", required = true) @PathVariable("name") String name) {
         return categoryService.getCategoryByName(name)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -148,7 +148,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<CategoryDto> getBySlug(
-            @Parameter(description = "分类别名", required = true) @PathVariable String slug) {
+            @Parameter(description = "分类别名", required = true) @PathVariable("slug") String slug) {
         return categoryService.getCategoryBySlug(slug)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -204,7 +204,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Void> delete(
-            @Parameter(description = "分类ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "分类ID", required = true) @PathVariable("id") Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
@@ -223,7 +223,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Boolean> existsByName(
-            @Parameter(description = "分类名称", required = true) @PathVariable String name) {
+            @Parameter(description = "分类名称", required = true) @PathVariable("name") String name) {
         return ResponseEntity.ok(categoryService.existsByName(name));
     }
 
@@ -241,7 +241,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Boolean> existsBySlug(
-            @Parameter(description = "分类别名", required = true) @PathVariable String slug) {
+            @Parameter(description = "分类别名", required = true) @PathVariable("slug") String slug) {
         return ResponseEntity.ok(categoryService.existsBySlug(slug));
     }
 
@@ -259,7 +259,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<List<CategoryDto>> children(
-            @Parameter(description = "父分类ID", required = true) @PathVariable Long parentId) {
+            @Parameter(description = "父分类ID", required = true) @PathVariable("parentId") Long parentId) {
         return ResponseEntity.ok(categoryService.getChildren(parentId));
     }
 }
