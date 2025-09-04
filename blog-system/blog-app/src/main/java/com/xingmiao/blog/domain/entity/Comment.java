@@ -47,12 +47,6 @@ public class Comment {
     @Column(name = "author_name", length = 100, nullable = false)
     private String authorName;
 
-    @Column(name = "author_email", length = 100)
-    private String authorEmail;
-
-    @Column(name = "author_website", length = 500)
-    private String authorWebsite;
-
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
 

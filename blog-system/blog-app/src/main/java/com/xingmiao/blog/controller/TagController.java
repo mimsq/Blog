@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 import java.util.List;
 
@@ -166,7 +167,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Page<TagDto>> getAllTags(
-            @Parameter(description = "分页参数") Pageable pageable) {
+            @Parameter(description = "分页参数") @ParameterObject Pageable pageable) {
         Page<TagDto> tags = tagService.getAllTags(pageable);
         return ResponseEntity.ok(tags);
     }

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,12 +60,36 @@ public class PostController {
      * @return 创建成功返回文章详情，状态码201
      */
     @PostMapping
-    @Operation(summary = "创建文章", description = "创建一篇新的博客文章")
+    @Operation(
+        summary = "创建文章", 
+        description = "创建一篇新的博客文章。只需要填写标题和内容即可，其他字段都有合理的默认值。",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "文章创建请求",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = PostCreateRequest.class),
+                examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                    name = "简单创建示例",
+                    summary = "最简单的文章创建",
+                    description = "只需要提供标题和内容，其他字段使用默认值",
+                    value = """
+                    {
+                        "title": "我的第一篇博客文章",
+                        "content": "# 欢迎来到我的博客\\n\\n这是我的第一篇博客文章，很高兴与大家分享我的想法。"
+                    }
+                    """
+                )
+            )
+        )
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "文章创建成功", 
                     content = @Content(schema = @Schema(implementation = PostDto.class))),
-        @ApiResponse(responseCode = "400", description = "请求参数无效"),
-        @ApiResponse(responseCode = "500", description = "服务器内部错误")
+        @ApiResponse(responseCode = "400", description = "请求参数无效", 
+                    content = @Content(schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "500", description = "服务器内部错误",
+                    content = @Content(schema = @Schema(implementation = String.class)))
     })
     public ResponseEntity<PostDto> create(@Valid @RequestBody PostCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.create(request));
@@ -177,7 +202,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Page<PostDto>> list(
-            @Parameter(description = "分页参数") Pageable pageable) {
+            @Parameter(description = "分页参数") @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(postService.list(pageable));
     }
 
@@ -197,7 +222,7 @@ public class PostController {
     })
     public ResponseEntity<Page<PostDto>> listByCategory(
             @Parameter(description = "分类ID", required = true) @PathVariable Long categoryId, 
-            @Parameter(description = "分页参数") Pageable pageable) {
+            @Parameter(description = "分页参数") @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(postService.listByCategory(categoryId, pageable));
     }
 
@@ -222,12 +247,20 @@ public class PostController {
         }
         // 校验 key 是否仍有效
         var keyOpt = postAccessKeyRepository.findById(keyId);
-        if (keyOpt.isEmpty()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (keyOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         var key = keyOpt.get();
         var now = java.time.LocalDateTime.now();
-        if (!Boolean.TRUE.equals(key.getIsActive())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!Boolean.TRUE.equals(key.getIsActive())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (key.getStartsAt() != null && now.isBefore(key.getStartsAt())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (key.getEndsAt() != null && now.isAfter(key.getEndsAt())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(post);
     }
 
@@ -240,9 +273,13 @@ public class PostController {
      */
     private String getCookieValue(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) return null;
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie c : cookies) {
-            if (name.equals(c.getName())) return c.getValue();
+            if (name.equals(c.getName())) {
+                return c.getValue();
+            }
         }
         return null;
     }
