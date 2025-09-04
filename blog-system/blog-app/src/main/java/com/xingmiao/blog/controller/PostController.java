@@ -112,7 +112,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<PostDto> update(
-            @Parameter(description = "文章ID", required = true) @PathVariable Long id, 
+            @Parameter(description = "文章ID", required = true) @PathVariable("id") Long id, 
             @Valid @RequestBody PostUpdateRequest request) {
         return ResponseEntity.ok(postService.update(id, request));
     }
@@ -131,7 +131,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Void> delete(
-            @Parameter(description = "文章ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "文章ID", required = true) @PathVariable("id") Long id) {
         postService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -153,7 +153,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<PostDto> getById(
-            @Parameter(description = "文章ID", required = true) @PathVariable Long id, 
+            @Parameter(description = "文章ID", required = true) @PathVariable("id") Long id, 
             HttpServletRequest request) {
         String token = getCookieValue(request, "pa_" + id);
         return postService.getById(id)
@@ -178,7 +178,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<PostDto> getBySlug(
-            @Parameter(description = "文章别名", required = true) @PathVariable String slug, 
+            @Parameter(description = "文章别名", required = true) @PathVariable("slug") String slug, 
             HttpServletRequest request) {
         return postService.getBySlug(slug)
                 .map(post -> {
@@ -221,7 +221,7 @@ public class PostController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Page<PostDto>> listByCategory(
-            @Parameter(description = "分类ID", required = true) @PathVariable Long categoryId, 
+            @Parameter(description = "分类ID", required = true) @PathVariable("categoryId") Long categoryId, 
             @Parameter(description = "分页参数") @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(postService.listByCategory(categoryId, pageable));
     }
