@@ -84,7 +84,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<TagDto> updateTag(
-            @Parameter(description = "标签ID", required = true) @PathVariable Long id, 
+            @Parameter(description = "标签ID", required = true) @PathVariable("id") Long id, 
             @Valid @RequestBody TagUpdateRequest request) {
         TagDto updatedTag = tagService.updateTag(id, request);
         return ResponseEntity.ok(updatedTag);
@@ -105,7 +105,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<TagDto> getTagById(
-            @Parameter(description = "标签ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "标签ID", required = true) @PathVariable("id") Long id) {
         return tagService.getTagById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -126,7 +126,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<TagDto> getTagByName(
-            @Parameter(description = "标签名称", required = true) @PathVariable String name) {
+            @Parameter(description = "标签名称", required = true) @PathVariable("name") String name) {
         return tagService.getTagByName(name)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -147,7 +147,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<TagDto> getTagBySlug(
-            @Parameter(description = "标签别名", required = true) @PathVariable String slug) {
+            @Parameter(description = "标签别名", required = true) @PathVariable("slug") String slug) {
         return tagService.getTagBySlug(slug)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -204,7 +204,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Void> deleteTag(
-            @Parameter(description = "标签ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "标签ID", required = true) @PathVariable("id") Long id) {
         tagService.deleteTag(id);
         return ResponseEntity.noContent().build();
     }
@@ -223,7 +223,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Boolean> existsByName(
-            @Parameter(description = "标签名称", required = true) @PathVariable String name) {
+            @Parameter(description = "标签名称", required = true) @PathVariable("name") String name) {
         boolean exists = tagService.existsByName(name);
         return ResponseEntity.ok(exists);
     }
@@ -242,7 +242,7 @@ public class TagController {
         @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public ResponseEntity<Boolean> existsBySlug(
-            @Parameter(description = "标签别名", required = true) @PathVariable String slug) {
+            @Parameter(description = "标签别名", required = true) @PathVariable("slug") String slug) {
         boolean exists = tagService.existsBySlug(slug);
         return ResponseEntity.ok(exists);
     }
