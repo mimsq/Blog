@@ -69,4 +69,5 @@ blog:
       default-ttl: 86400
 
 
-
+github:
+  token: #填写自己的密钥
