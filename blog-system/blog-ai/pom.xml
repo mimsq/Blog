@@ -39,6 +39,27 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Jackson Databind 核心依赖 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version> <!-- 建议使用最新稳定版，如 2.15.x 或 2.16.x -->
+        </dependency>
+
+        <!-- Apache HttpClient 4.x 核心依赖 -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version> <!-- 4.x 系列的最新稳定版 -->
+        </dependency>
+
+        <!-- 处理 multipart 表单数据（如文件上传）需要的依赖 -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.14</version> <!-- 需与 httpclient 版本保持一致 -->
+        </dependency>
     </dependencies>
 
     <build>
