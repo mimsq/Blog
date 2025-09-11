@@ -5,6 +5,10 @@ import com.xingmiao.blog.common.dto.CategoryCreateRequest;
 import com.xingmiao.blog.common.dto.CategoryDto;
 import com.xingmiao.blog.common.dto.CategoryUpdateRequest;
 import com.xingmiao.blog.app.repository.CategoryRepository;
+import com.xingmiao.blog.app.service.DifySyncService;
+import com.xingmiao.blog.common.domain.enums.SyncStatus;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.xingmiao.blog.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final DifySyncService difySyncService;
 
     @Override
     public CategoryDto createCategory(CategoryCreateRequest request) {
@@ -49,7 +54,15 @@ public class CategoryServiceImpl implements CategoryService {
                 .isActive(request.getIsActive())
                 .build();
 
+        category.setSyncStatus(SyncStatus.UNSYNCED);
         Category saved = categoryRepository.save(category);
+        // 事务提交后异步执行
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                difySyncService.syncCategory(saved.getId());
+            }
+        });
         return convertToDto(saved);
     }
 
@@ -87,7 +100,14 @@ public class CategoryServiceImpl implements CategoryService {
             category.setIsActive(request.getIsActive());
         }
 
+        category.setSyncStatus(SyncStatus.UNSYNCED);
         Category updated = categoryRepository.save(category);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                difySyncService.syncCategory(updated.getId());
+            }
+        });
         return convertToDto(updated);
     }
 
@@ -125,10 +145,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("分类不存在: " + id);
-        }
-        categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("分类不存在: " + id));
+        // 最简：将 isActive 置为 false 作为软删占位
+        category.setIsActive(false);
+        categoryRepository.save(category);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                difySyncService.syncCategory(id);
+            }
+        });
     }
 
     @Override

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import com.xingmiao.blog.common.domain.enums.SyncStatus;
 
 @Getter
 @Setter
@@ -47,6 +48,16 @@ public class Category {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sync_status", nullable = false, length = 20)
+    private SyncStatus syncStatus;
+
+    @Column(name = "dify_dataset_id", length = 255)
+    private String difyDatasetId;
+
+    @Column(name = "sync_error", length = 1000)
+    private String syncError;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -68,6 +79,9 @@ public class Category {
         }
         if (isActive == null) {
             isActive = true;
+        }
+        if (syncStatus == null) {
+            syncStatus = SyncStatus.UNSYNCED;
         }
     }
 

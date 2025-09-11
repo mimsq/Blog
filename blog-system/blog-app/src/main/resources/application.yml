@@ -71,3 +71,10 @@ blog:
 
 github:
   token: #填写自己的密钥
+
+
+dify:
+  base-url: http://localhost:18080
+  api-key: dataset-agCdYnX6Yj0MYf9DUMqOWMMW
+  workflowApiKey: app-d3SLewcYbdNgCZa2vRmQXVsa
+  sync-enabled: true
