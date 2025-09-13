@@ -23,6 +23,9 @@ public class CategoryUpdateRequest {
     private Integer sortOrder;
 
     private Boolean isActive;
+
+    @Size(max = 1000, message = "分类描述长度不能超过1000个字符")
+    private String description;
 }
 
 

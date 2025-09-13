@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * Dify API 客户端
- * 用于与 Dify 知识库进行文档同步操作
+ * 用于与 Dify 知识库进行文档/知识库同步操作
  */
 @Slf4j
 @Component
@@ -185,9 +185,15 @@ public class DifyApiClient {
         }
     }
 
-    //通过文件创建文档，返回 dify 文档ID
-    public String createDocumentByFile(String kbId, File file,Map<String,Object> dataConfig) throws Exception{
-        String url = baseUrl + "/v1/datasets/" + kbId + "/document/create-by-file";
+    /**
+     * 通过文件创建知识库
+     * @param datasetId 知识库ID
+     * @param file 知识库名称(可选)
+     * @param dataConfig 文档向量化等操作配置(可选)
+     * @return API响应结果
+     */
+    public String createDocumentByFile(String datasetId, File file,Map<String,Object> dataConfig) throws Exception{
+        String url = baseUrl + "/v1/datasets/" + datasetId + "/document/create-by-file";
         String dataJson = (dataConfig == null) ? "{}" : objectMapper.writeValueAsString(dataConfig);
 
         HttpPost post = new HttpPost(url);

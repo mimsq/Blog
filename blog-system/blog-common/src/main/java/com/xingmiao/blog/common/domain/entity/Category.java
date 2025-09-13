@@ -58,6 +58,9 @@ public class Category {
     @Column(name = "sync_error", length = 1000)
     private String syncError;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

@@ -39,7 +39,7 @@ public class DifySyncServiceImpl implements DifySyncService {
             if (datasetId == null || datasetId.isEmpty()) {
                 try {
                     log.info("分类无Dify知识库ID，转为创建，分类ID:{} 名称:{}", categoryId, category.getName());
-                    String response = difyApiClient.createDataset(category.getName(), null);
+                    String response = difyApiClient.createDataset(category.getName(), category.getDescription());
                     String createdId = extractDatasetId(response);
                     if (createdId == null || createdId.isEmpty()) {
                         throw new RuntimeException("创建知识库成功但未返回ID");
@@ -54,7 +54,7 @@ public class DifySyncServiceImpl implements DifySyncService {
             }
             try {
                     log.info("开始根据分类更新知识库,分类ID:{} 名称:{}", categoryId, category.getName());
-                    difyApiClient.updateDataset(datasetId, category.getName(), null);
+                    difyApiClient.updateDataset(datasetId, category.getName(), category.getDescription());
                     applyUpsertSuccess(category, datasetId);
                     return true;
             }catch (Exception e){
@@ -106,8 +106,7 @@ public class DifySyncServiceImpl implements DifySyncService {
        try {
            log.info("开始根据分类创建知识库,分类ID:{} 名称:{}", categoryId, category.getName());
            String KnowledgeBaseName = category.getName();
-           //TODO，后续在分类添加选填字段"description"后再同步到dify
-           String response = difyApiClient.createDataset(KnowledgeBaseName,null);
+           String response = difyApiClient.createDataset(KnowledgeBaseName, category.getDescription());
 
            String difyBaseId = extractDatasetId(response);
            if (difyBaseId == null || difyBaseId.isEmpty()) {
@@ -139,7 +138,7 @@ public class DifySyncServiceImpl implements DifySyncService {
                 // 创建
                 try {
                     log.info("[Sync] 创建知识库，分类ID:{} 名称:{}", categoryId, category.getName());
-                    String response = difyApiClient.createDataset(category.getName(), null);
+                    String response = difyApiClient.createDataset(category.getName(), category.getDescription());
                     String createdId = extractDatasetId(response);
                     if (createdId == null || createdId.isEmpty()) {
                         throw new RuntimeException("创建知识库成功但未返回ID");
@@ -153,7 +152,7 @@ public class DifySyncServiceImpl implements DifySyncService {
                 // 更新
                 try {
                     log.info("[Sync] 更新知识库，分类ID:{} 名称:{} datasetId:{}", categoryId, category.getName(), datasetId);
-                    difyApiClient.updateDataset(datasetId, category.getName(), null);
+                    difyApiClient.updateDataset(datasetId, category.getName(), category.getDescription());
                     applyUpsertSuccess(category, datasetId);
                 } catch (Exception e) {
                     log.error("[Sync] 更新知识库失败，分类ID:{} 名称:{} datasetId:{}", categoryId, category.getName(), datasetId, e);

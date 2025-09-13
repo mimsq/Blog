@@ -52,6 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .level(level)
                 .sortOrder(request.getSortOrder())
                 .isActive(request.getIsActive())
+                .description(request.getDescription())
                 .build();
 
         category.setSyncStatus(SyncStatus.UNSYNCED);
@@ -98,6 +99,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         if (request.getIsActive() != null) {
             category.setIsActive(request.getIsActive());
+        }
+
+        if (request.getDescription() != null) {
+            category.setDescription(request.getDescription());
         }
 
         category.setSyncStatus(SyncStatus.UNSYNCED);
@@ -187,6 +192,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .level(category.getLevel())
                 .sortOrder(category.getSortOrder())
                 .isActive(category.getIsActive())
+                .description(category.getDescription())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
                 .build();

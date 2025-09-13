@@ -61,7 +61,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.xingmiao.blog.BlogApplication</mainClass>
+                    <mainClass>com.xingmiao.blog.app.BlogApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

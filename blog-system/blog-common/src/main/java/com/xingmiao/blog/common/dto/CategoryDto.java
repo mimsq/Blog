@@ -19,6 +19,7 @@ public class CategoryDto {
     private Integer level;
     private Integer sortOrder;
     private Boolean isActive;
+    private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
