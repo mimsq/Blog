@@ -18,6 +18,7 @@ public interface PostService {
     Page<PostDto> list(Pageable pageable);
     Page<PostDto> listByCategory(Long categoryId, Pageable pageable);
     Boolean SyncToDify(Post post);
+    boolean existsById(Long id);
 }
 
 

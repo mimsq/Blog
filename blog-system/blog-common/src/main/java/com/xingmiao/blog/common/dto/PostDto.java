@@ -2,6 +2,7 @@ package com.xingmiao.blog.common.dto;
 
 import com.xingmiao.blog.common.domain.enums.ContentType;
 import com.xingmiao.blog.common.domain.enums.PostStatus;
+import com.xingmiao.blog.common.domain.enums.SyncStatus;
 import com.xingmiao.blog.common.domain.enums.Visibility;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,9 @@ public class PostDto {
     private Long viewCount;
     private Long likeCount;
     private Long commentCount;
+    private String difyDocumentId;
+    private SyncStatus syncStatus;
+    private String syncError;
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

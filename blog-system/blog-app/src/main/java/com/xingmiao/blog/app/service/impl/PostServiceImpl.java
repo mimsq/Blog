@@ -7,12 +7,15 @@ import com.xingmiao.blog.common.dto.PostDto;
 import com.xingmiao.blog.common.dto.PostUpdateRequest;
 import com.xingmiao.blog.app.repository.CategoryRepository;
 import com.xingmiao.blog.app.repository.PostRepository;
+import com.xingmiao.blog.app.service.DifySyncService;
 import com.xingmiao.blog.app.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
 
@@ -25,6 +28,9 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+    
+    @Autowired
+    private DifySyncService difySyncService;
 
     @Override
     public PostDto create(PostCreateRequest request) {
@@ -57,6 +63,15 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         Post savedPost = postRepository.save(post);
+        
+        // 异步同步到Dify
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                difySyncService.syncPost(savedPost.getId());
+            }
+        });
+        
         return convertToDto(savedPost);
     }
 
@@ -121,6 +136,15 @@ public class PostServiceImpl implements PostService {
         }
         
         Post updatedPost = postRepository.save(existingPost);
+        
+        // 异步同步到Dify
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                difySyncService.syncPost(updatedPost.getId());
+            }
+        });
+        
         return convertToDto(updatedPost);
     }
 
@@ -128,6 +152,17 @@ public class PostServiceImpl implements PostService {
     public void delete(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("文章不存在，ID:" + id));
+        
+        // 先删除Dify中的文档
+        if (post.getDifyDocumentId() != null && !post.getDifyDocumentId().isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    difySyncService.deletePostFromDify(id);
+                }
+            });
+        }
+        
         postRepository.delete(post);
     }
 
@@ -178,6 +213,9 @@ public class PostServiceImpl implements PostService {
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
+                .difyDocumentId(post.getDifyDocumentId())
+                .syncStatus(post.getSyncStatus())
+                .syncError(post.getSyncError())
                 .publishedAt(post.getPublishedAt())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
@@ -188,5 +226,10 @@ public class PostServiceImpl implements PostService {
     public Boolean SyncToDify(Post post) {
 
         return null;
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return postRepository.existsById(id);
     }
 }

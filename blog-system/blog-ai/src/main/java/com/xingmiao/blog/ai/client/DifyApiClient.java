@@ -186,7 +186,7 @@ public class DifyApiClient {
     }
 
     /**
-     * 通过文件创建知识库
+     * 通过文件创建知识库文档
      * @param datasetId 知识库ID
      * @param file 知识库名称(可选)
      * @param dataConfig 文档向量化等操作配置(可选)
@@ -224,6 +224,55 @@ public class DifyApiClient {
             return difyDocumentId;
         }
     }
+
+    /**
+     * 通过文本创建知识库文档
+     * @param datasetId 知识库ID
+     * @param name 文档名称
+     * @param text 文档内容
+     * @param dataConfig 文档向量化等操作配置，必须包含indexing_technique参数
+     * @return 创建的文档ID
+     */
+    public String createDocumentByText(String datasetId, String name, String text, Map<String,Object> dataConfig) throws Exception {
+        String url = baseUrl + "/v1/datasets/" + datasetId + "/document/create-by-text";
+        
+        // 构建请求体
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("name", name);
+        requestBody.put("text", text);
+        
+        // 如果提供了dataConfig，将其合并到请求体中
+        if (dataConfig != null && !dataConfig.isEmpty()) {
+            requestBody.putAll(dataConfig);
+        }
+        
+        String jsonBody = objectMapper.writeValueAsString(requestBody);
+
+        HttpPost post = new HttpPost(url);
+        post.setHeader("Authorization", "Bearer " + apiKey);
+        post.setHeader("Content-Type", "application/json");
+        post.setEntity(new StringEntity(jsonBody, StandardCharsets.UTF_8));
+
+        log.info("POST {}", url);
+        log.debug("data={}", jsonBody);
+
+        try (CloseableHttpResponse resp = httpClient.execute(post)) {
+            String body = EntityUtils.toString(resp.getEntity(), StandardCharsets.UTF_8);
+            int code = resp.getStatusLine().getStatusCode();
+            log.info("Dify create-by-text status={}, bodyLength={}", code, body.length());
+            if (code < 200 || code >= 300) {
+                throw new RuntimeException("Dify 通过文本创建文档失败: " + body);
+            }
+            JsonNode root = objectMapper.readTree(body);
+            JsonNode doc = root.path("document");
+            String difyDocumentId = doc.path("id").asText(null);
+            if (difyDocumentId == null) {
+                throw new RuntimeException("Dify 响应中缺少 document.id: " + body);
+            }
+            return difyDocumentId;
+        }
+    }
+
 
     /**
      * 通过文本更新 Dify 知识库中的文档

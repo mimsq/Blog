@@ -2,6 +2,7 @@ package com.xingmiao.blog.common.domain.entity;
 
 import com.xingmiao.blog.common.domain.enums.ContentType;
 import com.xingmiao.blog.common.domain.enums.PostStatus;
+import com.xingmiao.blog.common.domain.enums.SyncStatus;
 import com.xingmiao.blog.common.domain.enums.Visibility;
 import jakarta.persistence.*;
 import lombok.*;
@@ -85,6 +86,16 @@ public class Post {
     @Column(name = "comment_count")
     private Long commentCount;
 
+    @Column(name = "dify_document_id", length = 100)
+    private String difyDocumentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sync_status", nullable = false, length = 20)
+    private SyncStatus syncStatus;
+
+    @Column(name = "sync_error", columnDefinition = "TEXT")
+    private String syncError;
+
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
@@ -109,6 +120,9 @@ public class Post {
         }
         if (commentCount == null) {
             commentCount = 0L;
+        }
+        if (syncStatus == null) {
+            syncStatus = SyncStatus.UNSYNCED;
         }
         if (status == PostStatus.PUBLISHED && publishedAt == null) {
             publishedAt = now;
