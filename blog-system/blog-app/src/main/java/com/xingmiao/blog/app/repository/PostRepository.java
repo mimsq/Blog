@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -58,6 +59,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
      * 按状态和可见性查询未删除的文章
      */
     Page<Post> findByStatusAndVisibilityAndDeletedAtIsNull(PostStatus status, Visibility visibility, Pageable pageable);
+    
+    /**
+     * 统计指定分类下未删除的文章数量
+     */
+    long countByCategory_IdAndDeletedAtIsNull(Long categoryId);
+    
+    /**
+     * 查找回收站中指定分类下的所有文章
+     */
+    List<Post> findByCategory_IdAndDeletedAtIsNotNull(Long categoryId);
 }
 
 

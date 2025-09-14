@@ -1,6 +1,7 @@
 package com.xingmiao.blog.app.service.impl;
 
 import com.xingmiao.blog.app.repository.PostRepository;
+import com.xingmiao.blog.app.repository.CategoryRepository;
 import com.xingmiao.blog.app.service.DifySyncService;
 import com.xingmiao.blog.app.service.TrashService;
 import com.xingmiao.blog.common.domain.entity.Post;
@@ -30,6 +31,7 @@ import java.util.Optional;
 public class TrashServiceImpl implements TrashService {
 
     private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
     private final DifySyncService difySyncService;
 
     @Override
@@ -51,6 +53,17 @@ public class TrashServiceImpl implements TrashService {
     public void restorePost(Long id) {
         Post post = postRepository.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new RuntimeException("回收站中文章不存在，ID:" + id));
+        
+        // 检查文章的分类是否存在且激活
+        if (post.getCategory() != null) {
+            boolean categoryExists = categoryRepository.findById(post.getCategory().getId())
+                    .map(category -> Boolean.TRUE.equals(category.getIsActive()))
+                    .orElse(false);
+            
+            if (!categoryExists) {
+                throw new RuntimeException("无法恢复文章，文章的分类 \"" + post.getCategory().getName() + "\" 不存在或已被删除。请先恢复分类后再恢复文章。");
+            }
+        }
         
         post.setDeletedAt(null);
         postRepository.save(post);
@@ -92,6 +105,19 @@ public class TrashServiceImpl implements TrashService {
         
         if (trashPosts.isEmpty()) {
             throw new RuntimeException("没有找到可恢复的文章");
+        }
+        
+        // 检查每个文章的分类是否存在且激活
+        for (Post post : trashPosts) {
+            if (post.getCategory() != null) {
+                boolean categoryExists = categoryRepository.findById(post.getCategory().getId())
+                        .map(category -> Boolean.TRUE.equals(category.getIsActive()))
+                        .orElse(false);
+                
+                if (!categoryExists) {
+                    throw new RuntimeException("无法恢复文章 \"" + post.getTitle() + "\"，其分类 \"" + post.getCategory().getName() + "\" 不存在或已被删除。请先恢复分类后再恢复文章。");
+                }
+            }
         }
         
         // 批量恢复

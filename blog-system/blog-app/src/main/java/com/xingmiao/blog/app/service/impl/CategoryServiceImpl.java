@@ -1,16 +1,19 @@
 package com.xingmiao.blog.app.service.impl;
 
 import com.xingmiao.blog.common.domain.entity.Category;
+import com.xingmiao.blog.common.domain.entity.Post;
 import com.xingmiao.blog.common.dto.CategoryCreateRequest;
 import com.xingmiao.blog.common.dto.CategoryDto;
 import com.xingmiao.blog.common.dto.CategoryUpdateRequest;
 import com.xingmiao.blog.app.repository.CategoryRepository;
+import com.xingmiao.blog.app.repository.PostRepository;
 import com.xingmiao.blog.app.service.DifySyncService;
 import com.xingmiao.blog.common.domain.enums.SyncStatus;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.xingmiao.blog.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,10 +25,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final PostRepository postRepository;
     private final DifySyncService difySyncService;
 
     @Override
@@ -152,15 +157,35 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("分类不存在: " + id));
-        // 最简：将 isActive 置为 false 作为软删占位
+        
+        // 1. 检查分类下是否有未删除的文章
+        long activePostCount = postRepository.countByCategory_IdAndDeletedAtIsNull(id);
+        if (activePostCount > 0) {
+            throw new RuntimeException("无法删除分类，该分类下还有 " + activePostCount + " 篇未删除的文章。请先将文章移入回收站后再删除分类。");
+        }
+        
+        // 2. 级联删除回收站中该分类下的所有文章
+        List<Post> trashPosts = postRepository.findByCategory_IdAndDeletedAtIsNotNull(id);
+        if (!trashPosts.isEmpty()) {
+            postRepository.deleteAll(trashPosts);
+            log.info("删除分类时级联删除回收站文章，分类ID:{} 分类名称:{} 删除文章数量:{}", 
+                    id, category.getName(), trashPosts.size());
+        }
+        
+        // 3. 软删除分类（设置isActive为false）
         category.setIsActive(false);
+        category.setSyncStatus(SyncStatus.UNSYNCED);
         categoryRepository.save(category);
+        
+        // 4. 异步同步到Dify（删除知识库）
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 difySyncService.syncCategory(id);
             }
         });
+        
+        log.info("分类软删除成功，ID:{} 名称:{}", id, category.getName());
     }
 
     @Override
