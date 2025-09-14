@@ -21,7 +21,9 @@ import java.time.LocalDateTime;
                @Index(name = "idx_status", columnList = "status"),
                @Index(name = "idx_visibility", columnList = "visibility"),
                @Index(name = "idx_published_at", columnList = "published_at"),
-               @Index(name = "idx_created_at", columnList = "created_at")
+               @Index(name = "idx_created_at", columnList = "created_at"),
+               @Index(name = "idx_deleted_at", columnList = "deleted_at"),
+               @Index(name = "idx_status_visibility_deleted", columnList = "status, visibility, deleted_at")
        },
        uniqueConstraints = {
                @UniqueConstraint(name = "uk_posts_slug", columnNames = {"slug"})
@@ -98,6 +100,9 @@ public class Post {
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

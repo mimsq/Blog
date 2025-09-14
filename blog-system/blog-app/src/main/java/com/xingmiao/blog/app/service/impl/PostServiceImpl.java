@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -150,10 +151,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void delete(Long id) {
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException("文章不存在，ID:" + id));
         
-        // 先删除Dify中的文档
+        // 软删除：设置删除时间
+        post.setDeletedAt(LocalDateTime.now());
+        postRepository.save(post);
+        
+        // 异步删除Dify中的文档
         if (post.getDifyDocumentId() != null && !post.getDifyDocumentId().isEmpty()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -162,35 +167,33 @@ public class PostServiceImpl implements PostService {
                 }
             });
         }
-        
-        postRepository.delete(post);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<PostDto> getById(Long id) {
-        return postRepository.findById(id)
+        return postRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<PostDto> getBySlug(String slug) {
-        return postRepository.findBySlug(slug)
+        return postRepository.findBySlugAndDeletedAtIsNull(slug)
                 .map(this::convertToDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PostDto> list(Pageable pageable) {
-        return postRepository.findAll(pageable)
+        return postRepository.findByDeletedAtIsNull(pageable)
                 .map(this::convertToDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PostDto> listByCategory(Long categoryId, Pageable pageable) {
-        return postRepository.findByCategory_Id(categoryId, pageable)
+        return postRepository.findByCategory_IdAndDeletedAtIsNull(categoryId, pageable)
                 .map(this::convertToDto);
     }
 
@@ -232,4 +235,5 @@ public class PostServiceImpl implements PostService {
     public boolean existsById(Long id) {
         return postRepository.existsById(id);
     }
+
 }

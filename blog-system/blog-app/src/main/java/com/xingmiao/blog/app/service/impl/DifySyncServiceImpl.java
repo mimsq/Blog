@@ -444,6 +444,11 @@ public class DifySyncServiceImpl implements DifySyncService {
      * 检查文章是否应该同步到Dify
      */
     private boolean shouldSyncPost(Post post) {
+        // 检查是否被软删除
+        if (post.getDeletedAt() != null) {
+            return false;
+        }
+        
         // 检查文章状态
         if (post.getStatus() != PostStatus.PUBLISHED) {
             return false;
